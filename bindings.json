@@ -1,0 +1,5 @@
+{
+    "Shift-Delete": "DeleteLine",
+    "\u001bctrlback": "DeleteWordLeft",
+    "Ctrl-Delete": "DeleteWordRight"
+}
