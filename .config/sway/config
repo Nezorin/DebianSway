@@ -12,6 +12,9 @@ set $term alacritty
 # Your preferred application launcher
 set $menu bemenu-run -C --ignorecase --list "5" --border-radius 15 --width-factor 0.5 -H18 --center | xargs swaymsg exec --
 
+#Remove title and border
+default_border none 
+
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
