@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#command to add ovpn config to nmcli
+#nmcli connection import type openvpn file ~/.config/vps.ovpn
+
+VPN_NAME="vps"
+
+if nmcli -t connection show --active | grep -q "$VPN_NAME"; then
+    nmcli connection down "$VPN_NAME"
+    notify-send "VPN Disconnected"
+else
+    nmcli connection up "$VPN_NAME"
+    notify-send "VPN Connected"
+fi

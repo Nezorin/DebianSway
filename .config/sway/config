@@ -8,9 +8,11 @@ set $down j
 set $up k
 set $right l
 # Your preferred terminal emulator
-set $term alacritty 
+set $term wezterm 
 # Your preferred application launcher
-set $menu bemenu-run -C --ignorecase --list "5" --border-radius 15 --width-factor 0.5 -H18 --center | xargs swaymsg exec --
+
+set $menu bemenu-run --fn "JetBrains Mono 16" -C --ignorecase --list 5 --border-radius 15 --width-factor 0.5 -H 18 --center | xargs swaymsg exec --
+
 
 #Remove title and border
 default_border none 
@@ -31,9 +33,9 @@ output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 # Example configuration:
 #
 exec swayidle -w \
-          timeout 300 'swaylock -f -c 000000' \
+          timeout 300 'swaylock -e -f -c 000000' \
           timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-          before-sleep 'swaylock -f -c 000000'
+          before-sleep 'swaylock -e -f -c 000000'
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -49,6 +51,18 @@ exec swayidle -w \
 #       natural_scroll enabled
 #       middle_emulation enabled
 #   }
+
+#Russian layout + toggle
+input "type:keyboard" {
+    xkb_layout "us,ru"
+    xkb_options "grp:alt_shift_toggle"
+}
+
+# Remove mouse acceleration
+input "type:pointer" {
+    accel_profile flat
+    pointer_accel 0
+}
 #
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
@@ -58,7 +72,7 @@ exec swayidle -w \
 # Basics:
 #
     # Start a terminal
-    bindsym $mod+Return exec $term
+    # bindsym $mod+Return exec $term
 
     # Kill focused window
     bindsym $mod+Shift+q kill
@@ -80,10 +94,7 @@ exec swayidle -w \
     bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 
     # Lock screen
-    bindsym $mod+l exec swaylock -e -f
-    #Todo set background picture, add config file for swayidle	
-    #bindsym $mod+l exec swaylock -e -f -i ~/Pictures/lockscreen.jpg -C ~/.config/swaylock/config
-
+    bindsym $mod+l exec swaylock -e -f -i /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png  
 
 #
 # Moving around:
@@ -112,11 +123,25 @@ exec swayidle -w \
 #
 # Workspaces:
 #
+    set $termws term
+    set $ws1 1:firefox
+    set $ws4 4:tg
+
+    assign [app_id="$term"] $termws
+    exec --no-startup-id wezterm
+
+    assign [app_id="firefox"] $ws1
+    exec --no-startup-id firefox
+    
+    assign [app_id="org.telegram.desktop"] $ws4
+    exec --no-startup-id telegram-desktop
+
     # Switch to workspace
-    bindsym $mod+1 workspace number 1
+    bindsym $mod+Return workspace $termws
+    bindsym $mod+1 workspace $ws1
     bindsym $mod+2 workspace number 2
     bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
+    bindsym $mod+4 workspace $ws4
     bindsym $mod+5 workspace number 5
     bindsym $mod+6 workspace number 6
     bindsym $mod+7 workspace number 7
@@ -196,20 +221,33 @@ mode "resize" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
 bindsym $mod+r mode "resize"
 #
 # Utilities:
 #
+    #VPN toggle(win+shift+V)
+    bindcode $mod+Shift+55 exec ~/.config/toggle-vpn
+
+    # Screenshot: Selected area → clipboard
+    bindcode $mod+Shift+39 exec grim -g "$(slurp)" - | wl-copy
+
+    # Screenshot: Entire screen → clipboard
+    bindsym Print exec grim - | wl-copy
+
     # Special keys to adjust volume via PulseAudio
     bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
     bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+
+    # Win+m mute
+    bindcode Mod4+58 exec pactl set-sink-mute @DEFAULT_SINK@ toggle
     # Special keys to adjust brightness via brightnessctl
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
     # Special key to take a screenshot with grim
-    bindsym Print exec grim
+    # bindsym Print exec grim
 
 #
 # Status Bar:
@@ -217,5 +255,6 @@ bindsym $mod+r mode "resize"
 # Read `man 5 sway-bar` for more information about this section.
 
 bar swaybar_command waybar
+
 
 include /etc/sway/config.d/*
